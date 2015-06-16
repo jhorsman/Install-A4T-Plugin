@@ -36,11 +36,11 @@ try
 
     if($pluginIsInstalled) 
     {
-        $response = $webclient.UploadString("http://localhost/Alchemy/api/Plugins/Servicer/Uninstall", "")
+        $response = $webclient.UploadString($cmsHostname + "Alchemy/api/Plugins/Servicer/Uninstall", "")
         Write-Host "Uninstalled module $moduleName"
     }
 
-    $response = $webclient.UploadFile('http://localhost/Alchemy/api/Plugins/Install', $file)
+    $response = $webclient.UploadFile($cmsHostname + "http://localhost/Alchemy/api/Plugins/Install", $file)
     Write-Host "Installed module $moduleName"
 }
 catch [System.Net.WebException]
