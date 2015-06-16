@@ -1,6 +1,6 @@
-$file = Get-Item ".\Servicer (1).a4t"
-$moduleName = "Servicer"
-$cmsHostname = "http://localhost/"
+$file = Get-Item ".\HelloWorld.a4t"
+$moduleName = "HelloWorld"
+$cmsHostname = "http://localhost"
 
 try
 {
@@ -8,6 +8,11 @@ try
     $cred = [System.Net.CredentialCache]::DefaultCredentials
     $webclient = new-object System.Net.WebClient
     $webclient.Credentials = $creds
+
+    if($cmsHostname.EndsWith("/") -eq $false)
+    {
+        $cmsHostname = $cmsHostname + "/"
+    }
 
     try
     {
@@ -36,11 +41,11 @@ try
 
     if($pluginIsInstalled) 
     {
-        $response = $webclient.UploadString($cmsHostname + "Alchemy/api/Plugins/Servicer/Uninstall", "")
+        $response = $webclient.UploadString($cmsHostname + "Alchemy/api/Plugins/" + $moduleName + "/Uninstall", "")
         Write-Host "Uninstalled module $moduleName"
     }
 
-    $response = $webclient.UploadFile($cmsHostname + "http://localhost/Alchemy/api/Plugins/Install", $file)
+    $response = $webclient.UploadFile($cmsHostname + "Alchemy/api/Plugins/Install", $file)
     Write-Host "Installed module $moduleName"
 }
 catch [System.Net.WebException]
