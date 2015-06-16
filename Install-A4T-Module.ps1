@@ -1,9 +1,10 @@
-$file = Get-Item ".\HelloWorld.a4t"
-$moduleName = "HelloWorld"
+$filename = "HelloWorld.a4t"  
+$pluginName = "HelloWorld"     #todo read plugin name from archive
 $cmsHostname = "http://localhost"
 
 try
 {
+    #todo add configuration options
     #$creds = Get-Credential
     $cred = [System.Net.CredentialCache]::DefaultCredentials
     $webclient = new-object System.Net.WebClient
@@ -28,25 +29,28 @@ try
     $pluginIsInstalled = $false
     if($plugins)
     {
-        $pluginIsInstalled = $plugins.name.Contains($moduleName)
+        $pluginIsInstalled = $plugins.name.Contains($pluginName)
     }
 
     if($pluginIsInstalled)
     {
-        Write-Host "$moduleName is installed"
+        Write-Host "$pluginName is installed"
     } else 
     {
-        Write-Host "$moduleName is not installed"
+        Write-Host "$pluginName is not installed"
     }
+
+    $file = Get-Item ".\$filename"
+    #check for /plugin/name without spaces in a4t.xml
 
     if($pluginIsInstalled) 
     {
-        $response = $webclient.UploadString($cmsHostname + "Alchemy/api/Plugins/" + $moduleName + "/Uninstall", "")
-        Write-Host "Uninstalled module $moduleName"
+        $response = $webclient.UploadString($cmsHostname + "Alchemy/api/Plugins/" + $pluginName + "/Uninstall", "")
+        Write-Host "Uninstalled module $pluginName"
     }
 
     $response = $webclient.UploadFile($cmsHostname + "Alchemy/api/Plugins/Install", $file)
-    Write-Host "Installed module $moduleName"
+    Write-Host "Installed module $pluginName"
 }
 catch [System.Net.WebException]
 {
