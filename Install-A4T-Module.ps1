@@ -1,23 +1,28 @@
 $filename = "HelloWorld.a4t"  
 $pluginName = "HelloWorld"     #todo read plugin name from archive
 $cmsHostname = "http://localhost"
+$username = ""  #username and password are optional. The script defaults to the logged on user's credentials
+$password = ""
+#$username = "administrator"
+#$password = "password"
 
 try
 {
     #todo add configuration options
 
-    $User = "administrator"
-    $password = "password"
-    $password = ConvertTo-SecureString "password" -AsPlainText -Force
-    $MyCredential=New-Object -TypeName System.Management.Automation.PSCredential ($User, $pasword)
-
-    $cred = [System.Net.CredentialCache]::DefaultCredentials
-    if(!$cred) 
-    {
-        $creds = Get-Credential
-    }
     $webclient = new-object System.Net.WebClient
-    $webclient.Credentials = $creds
+    if($username -and $password)
+    {
+        Write-Host "using provided credentials for user $username"
+        $securePassword = ConvertTo-SecureString $password -AsPlainText -Force
+        $webclient.UseDefaultCredentials = $false
+        $webclient.Credentials = New-Object -TypeName System.Management.Automation.PSCredential ($username, $securePassword)
+    } else 
+    {
+        Write-Host "using default (logged on user's) credentials" 
+        $webclient.UseDefaultCredentials = $true
+    }
+
 
     if($cmsHostname.EndsWith("/") -eq $false)
     {
