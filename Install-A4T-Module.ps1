@@ -5,8 +5,17 @@ $cmsHostname = "http://localhost"
 try
 {
     #todo add configuration options
-    #$creds = Get-Credential
+
+    $User = "administrator"
+    $password = "password"
+    $password = ConvertTo-SecureString "password" -AsPlainText -Force
+    $MyCredential=New-Object -TypeName System.Management.Automation.PSCredential ($User, $pasword)
+
     $cred = [System.Net.CredentialCache]::DefaultCredentials
+    if(!$cred) 
+    {
+        $creds = Get-Credential
+    }
     $webclient = new-object System.Net.WebClient
     $webclient.Credentials = $creds
 
@@ -21,8 +30,14 @@ try
     }
     catch [System.Net.WebException]
     {
+        $exception = $_
+        if($exception.Exception.Message.Contains("(401)"))
+        {
+            Write-Error "Authentication error"
+            throw $exception
+        }
         Write-Error "Something went wrong there. Alchemy4Tridion might not be installed."
-        throw $_
+        throw $exception
     }
 
     $plugins = ConvertFrom-Json($response)
