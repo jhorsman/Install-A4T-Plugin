@@ -1,14 +1,24 @@
-$filename = "HelloWorld.a4t"  
-$pluginName = "HelloWorld"     #todo read plugin name from archive
-$cmsHostname = "http://localhost"
-$username = ""  #username and password are optional. The script defaults to the logged on user's credentials
-$password = ""
-#$username = "administrator"
-#$password = "password"
+#upload.ps1' .\HelloWorld.a4t HelloWorld
+
+
+param (
+    [parameter(Mandatory=$true)]
+    [string] $filename,
+
+    [parameter(Mandatory=$true)]
+    [string] $pluginName,
+
+    [string] $cmsHostname = "http://localhost",
+
+    #username and password are optional. The script defaults to the logged on user's credentials
+    [string] $username = "",
+
+    [string] $password = ""
+)
 
 try
 {
-    #todo add configuration options
+    #todo check if file exists
 
     $webclient = new-object System.Net.WebClient
     if($username -and $password)
