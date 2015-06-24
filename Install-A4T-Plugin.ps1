@@ -5,8 +5,7 @@ param (
     [parameter(Mandatory=$true)]
     [string] $filename,
 
-    [parameter(Mandatory=$true)]
-    [string] $pluginName,
+   [string] $pluginName,
 
     [string] $cmsHostname = "http://localhost",
 
@@ -26,6 +25,10 @@ try
         exit
     }
 
+    if(!$PluginName)
+    {
+        $PluginName = [io.fileinfo] $Filename | % basename
+    }
 
     $webclient = new-object System.Net.WebClient
     if($username -and $password)
