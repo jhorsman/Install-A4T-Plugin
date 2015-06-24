@@ -77,15 +77,23 @@ try
     $installedPlugin = $plugins.Where{$_.name -eq $PluginName}
     $pluginIsInstalled = ($installedPlugin.Count -eq 1)
 
+    $installedPluginIsDeveloperVersion = $null
     if($pluginIsInstalled)
     {
-        Write-Host "$PluginName is installed; Version:"$installedPlugin.versionNumber"; VersionId:"$installedPlugin.versionId
+        Write-Host "$PluginName is installed; Version: $($installedPlugin.versionNumber); VersionId: $($installedPlugin.versionId)"
+        $pluginIsDeveloperVersion = ([string]::IsNullOrEmpty($installedPlugin.versionNumber) -or [string]::IsNullOrEmpty($installedPlugin.versionId))
+        if($pluginIsDeveloperVersion)
+        {
+            Write-Host "The installed plugin is a development version"
+        }
     } else 
     {
         Write-Host "$PluginName is not installed"
     }
 
+    #todo compare with plugin version in .a4t file
     #check for /plugin/name without spaces in a4t.xml
+
     if($pluginIsInstalled) 
     {
         try{
