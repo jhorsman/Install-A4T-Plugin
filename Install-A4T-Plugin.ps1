@@ -2,6 +2,10 @@
 #   .\Install-A4T-Plugin.ps1 "HelloWorld.a4t"
 #   .\Install-A4T-Plugin.ps1 "HelloWorld-old-copy.a4t" "HelloWorld"
 #   .\Install-A4T-Plugin.ps1 "HelloWorld.a4t" -CmsHostname "http://cms" -Username administrator -Password secret
+#   .\Install-A4T-Plugin.ps1 "HelloWorld.a4t" -Verbose
+
+
+#todo verbose mode
 
 param (
     [parameter(Mandatory=$true)]
@@ -21,7 +25,7 @@ $ErrorActionPreference = "Stop"
 
 try
 {
-    Write-Host "Using filename $Filename"
+    Write-Verbose "Using filename $Filename"
 
     if(!(Test-Path($Filename)))
     {
@@ -36,18 +40,18 @@ try
 
     #todo check for /plugin/name without spaces in a4t.xml
 
-    Write-Host "using plugin name $PluginName"
+    Write-Verbose "using plugin name $PluginName"
 
     $webclient = new-object System.Net.WebClient
     if($Username -and $Password)
     {
-        Write-Host "using provided credentials for user $Username"
+        Write-Verbose "using provided credentials for user $Username"
         $securePassword = ConvertTo-SecureString $Password -AsPlainText -Force
         $webclient.UseDefaultCredentials = $false
         $webclient.Credentials = New-Object -TypeName System.Management.Automation.PSCredential ($Username, $securePassword)
     } else 
     {
-        Write-Host "using default (logged on user's) credentials" 
+        Write-Verbose "using default (logged on user's) credentials" 
         $webclient.UseDefaultCredentials = $true
     }
 
@@ -84,11 +88,11 @@ try
         $pluginIsDeveloperVersion = ([string]::IsNullOrEmpty($installedPlugin.versionNumber) -or [string]::IsNullOrEmpty($installedPlugin.versionId))
         if($pluginIsDeveloperVersion)
         {
-            Write-Host "The installed plugin is a development version"
+            Write-Verbose "The installed plugin is a development version"
         }
     } else 
     {
-        Write-Host "$PluginName is not installed"
+        Write-Verbose "$PluginName is not installed"
     }
 
     #todo compare with plugin version in .a4t file
@@ -97,7 +101,7 @@ try
     if($pluginIsInstalled) 
     {
         try{
-            Write-Host "Uninstalling plugin $PluginName..."
+            Write-Verbose "Uninstalling plugin $PluginName..."
             $response = $webclient.UploadString($CmsHostname + "Alchemy/api/Plugins/" + $PluginName + "/Uninstall", "")
             Write-Host "Uninstalled plugin $PluginName"
         }
@@ -110,10 +114,10 @@ try
     }
 
     $file = Get-Item "$Filename"
-         
+
     try
     {
-        Write-Host "Installing plugin $PluginName..."
+        Write-Verbose "Installing plugin $PluginName..."
         $response = $webclient.UploadFile($CmsHostname + "Alchemy/api/Plugins/Install", $file)
         Write-Host "Installed plugin $PluginName"
     }
@@ -123,7 +127,7 @@ try
         Write-Error "Something went wrong while installing plugin $PluginName"
         throw $exception
     }
-    Write-Host "done!"
+    Write-Verbose "done!"
 }
 catch [System.Net.WebException]
 {

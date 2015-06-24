@@ -32,3 +32,6 @@ plugin name is different from file name
 
 remote Content Manager
  `.\Install-A4T-Plugin.ps1 "HelloWorld.a4t" -CmsHostname "http://cms" -Username administrator -Password secret`
+
+verbose mode
+ `.\Install-A4T-Plugin.ps1 "HelloWorld.a4t" -Verbose` 
