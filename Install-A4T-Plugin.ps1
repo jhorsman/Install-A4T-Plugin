@@ -18,7 +18,14 @@ param (
 
 try
 {
-    #todo check if file exists
+    Write-Host "Using filename $Filename"
+
+    if(!(Test-Path($Filename)))
+    {
+        Write-Error "File $Filename does not exits"
+        exit
+    }
+
 
     $webclient = new-object System.Net.WebClient
     if($username -and $password)
