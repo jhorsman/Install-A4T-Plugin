@@ -3,17 +3,21 @@
 
 param (
     [parameter(Mandatory=$true)]
-    [string] $filename,
+    [string] $Filename,
 
-   [string] $pluginName,
+    [string] $PluginName,
 
-    [string] $cmsHostname = "http://localhost",
+    [string] $CmsHostname = "http://localhost",
 
     #username and password are optional. The script defaults to the logged on user's credentials
-    [string] $username = "",
+    [string] $Username = "",
 
-    [string] $password = ""
+    [string] $Password = ""
+
 )
+
+
+$ErrorActionPreference = "Stop"
 
 try
 {
@@ -29,14 +33,15 @@ try
     {
         $PluginName = [io.fileinfo] $Filename | % basename
     }
+    Write-Host "using plugin name $PluginName"
 
     $webclient = new-object System.Net.WebClient
-    if($username -and $password)
+    if($Username -and $Password)
     {
-        Write-Host "using provided credentials for user $username"
-        $securePassword = ConvertTo-SecureString $password -AsPlainText -Force
+        Write-Host "using provided credentials for user $Username"
+        $securePassword = ConvertTo-SecureString $Password -AsPlainText -Force
         $webclient.UseDefaultCredentials = $false
-        $webclient.Credentials = New-Object -TypeName System.Management.Automation.PSCredential ($username, $securePassword)
+        $webclient.Credentials = New-Object -TypeName System.Management.Automation.PSCredential ($Username, $securePassword)
     } else 
     {
         Write-Host "using default (logged on user's) credentials" 
@@ -44,14 +49,14 @@ try
     }
 
 
-    if($cmsHostname.EndsWith("/") -eq $false)
+    if($CmsHostname.EndsWith("/") -eq $false)
     {
-        $cmsHostname = $cmsHostname + "/"
+        $CmsHostname = $CmsHostname + "/"
     }
 
     try
     {
-        $response = $webclient.DownloadString($cmsHostname + "Alchemy/api/Plugins")
+        $response = $webclient.DownloadString($CmsHostname + "Alchemy/api/Plugins")
     }
     catch [System.Net.WebException]
     {
@@ -69,15 +74,15 @@ try
     $pluginIsInstalled = $false
     if($plugins)
     {
-        $pluginIsInstalled = $plugins.name.Contains($pluginName)
+        $pluginIsInstalled = $plugins.name.Contains($PluginName)
     }
 
     if($pluginIsInstalled)
     {
-        Write-Host "$pluginName is installed"
+        Write-Host "$PluginName is installed"
     } else 
     {
-        Write-Host "$pluginName is not installed"
+        Write-Host "$PluginName is not installed"
     }
 
     $file = Get-Item ".\$filename"
