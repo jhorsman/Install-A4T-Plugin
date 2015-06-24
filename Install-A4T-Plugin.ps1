@@ -88,17 +88,37 @@ try
         Write-Host "$PluginName is not installed"
     }
 
-    $file = Get-Item ".\$filename"
     #check for /plugin/name without spaces in a4t.xml
-
     if($pluginIsInstalled) 
     {
-        $response = $webclient.UploadString($cmsHostname + "Alchemy/api/Plugins/" + $pluginName + "/Uninstall", "")
-        Write-Host "Uninstalled module $pluginName"
+        try{
+            Write-Host "Uninstalling plugin $PluginName..."
+            $response = $webclient.UploadString($CmsHostname + "Alchemy/api/Plugins/" + $PluginName + "/Uninstall", "")
+            Write-Host "Uninstalled plugin $PluginName"
+        }
+        catch [System.Net.WebException]
+        {
+            $exception = $_
+            Write-Error "Something went wrong while uninstalling plugin $PluginName"
+            throw $exception
+        }
     }
 
-    $response = $webclient.UploadFile($cmsHostname + "Alchemy/api/Plugins/Install", $file)
-    Write-Host "Installed module $pluginName"
+    $file = Get-Item "$Filename"
+         
+    try
+    {
+        Write-Host "Installing plugin $PluginName..."
+        $response = $webclient.UploadFile($CmsHostname + "Alchemy/api/Plugins/Install", $file)
+        Write-Host "Installed plugin $PluginName"
+    }
+    catch [System.Net.WebException]
+    {
+        $exception = $_
+        Write-Error "Something went wrong while installing plugin $PluginName"
+        throw $exception
+    }
+    Write-Host "done!"
 }
 catch [System.Net.WebException]
 {
