@@ -14,8 +14,6 @@ To install an Alchemy4Tridion plugin just call the Install-A4T-Plugin script wit
 
 * Path to .a4t file; this is an archive containing the Alchemy4Tridion plugin. You can download this from the Alchemy4Tridion store or get it from the Visual Studio build folder if you are developing a plugin.
 
-* Plugin name (optional); The name as defined in the module. Defaults to the file name. The plugin name should be read from the .a4t file but that is not implemented yet. 
-
 * CMS URL (optional); URL of the Tridion Content Manager server. Defaults to "http://local host"
 
 * Username (optional) Tridion CM user with administrator rights. when username and password are not provided the logged on user's credentials will be used.
@@ -26,9 +24,6 @@ Examples
 =========
 minimal
  `.\Install-A4T-Plugin.ps1 "HelloWorld.a4t"`
-
-plugin name is different from file name
- `.\Install-A4T-Plugin.ps1 "HelloWorld-old-copy.a4t" "HelloWorld"`
 
 remote Content Manager
  `.\Install-A4T-Plugin.ps1 "HelloWorld.a4t" -CmsHostname "http://cms" -Username administrator -Password secret`

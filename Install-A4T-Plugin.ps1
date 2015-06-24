@@ -1,6 +1,5 @@
 # Usage examples
 #   .\Install-A4T-Plugin.ps1 "HelloWorld.a4t"
-#   .\Install-A4T-Plugin.ps1 "HelloWorld-old-copy.a4t" "HelloWorld"
 #   .\Install-A4T-Plugin.ps1 "HelloWorld.a4t" -CmsHostname "http://cms" -Username administrator -Password secret
 #   .\Install-A4T-Plugin.ps1 "HelloWorld.a4t" -Verbose
 
@@ -10,8 +9,6 @@
 param (
     [parameter(Mandatory=$true)]
     [string] $Filename,
-
-    [string] $PluginName,
 
     [string] $CmsHostname = "http://localhost",
 
@@ -33,14 +30,34 @@ try
         exit
     }
 
-    if(!$PluginName)
-    {
-        $PluginName = [io.fileinfo] $Filename | % basename
-    }
-
     #todo check for /plugin/name without spaces in a4t.xml
 
-    Write-Verbose "using plugin name $PluginName"
+    $pluginName = $null
+    try {
+        $file = Get-Item($Filename)
+        Add-Type -assembly system.io.compression.filesystem
+        $a = [io.compression.zipfile]::OpenRead($file.FullName)
+        $entries = $a.Entries.Where{$_.FullName -eq "a4t.xml"}
+        #$entries.Count
+        $entry = $entries[0]
+        $stream = $entry.Open()
+        $reader = new-object System.IO.StreamReader($stream)
+        $content = [xml] $reader.ReadToEnd()
+        $pluginName = $content["plugin"]["name"].InnerText
+        #$content["plugin"]["id"].InnerText
+        #$content["plugin"]["version"].InnerText
+        #$content["plugin"]["versionId"].InnerText
+    } catch {
+        Write-Error "Something went wrong while reading $Filename. Are you sure this is an .a4t file?"
+        throw $exception
+    }
+
+    if([string]::IsNullOrEmpty($pluginName))
+    {
+        Write-Error "Could not get plugin name from $Filename"
+    }
+
+    Write-Verbose "using plugin name $pluginName"
 
     $webclient = new-object System.Net.WebClient
     if($Username -and $Password)
@@ -78,13 +95,13 @@ try
     }
 
     $plugins = ConvertFrom-Json($response)
-    $installedPlugin = $plugins.Where{$_.name -eq $PluginName}
+    $installedPlugin = $plugins.Where{$_.name -eq $pluginName}
     $pluginIsInstalled = ($installedPlugin.Count -eq 1)
 
     $installedPluginIsDeveloperVersion = $null
     if($pluginIsInstalled)
     {
-        Write-Host "$PluginName is installed; Version: $($installedPlugin.versionNumber); VersionId: $($installedPlugin.versionId)"
+        Write-Host "$pluginName is installed; Version: $($installedPlugin.versionNumber); VersionId: $($installedPlugin.versionId)"
         $pluginIsDeveloperVersion = ([string]::IsNullOrEmpty($installedPlugin.versionNumber) -or [string]::IsNullOrEmpty($installedPlugin.versionId))
         if($pluginIsDeveloperVersion)
         {
@@ -92,7 +109,7 @@ try
         }
     } else 
     {
-        Write-Verbose "$PluginName is not installed"
+        Write-Verbose "$pluginName is not installed"
     }
 
     #todo compare with plugin version in .a4t file
@@ -101,14 +118,14 @@ try
     if($pluginIsInstalled) 
     {
         try{
-            Write-Verbose "Uninstalling plugin $PluginName..."
-            $response = $webclient.UploadString($CmsHostname + "Alchemy/api/Plugins/" + $PluginName + "/Uninstall", "")
-            Write-Host "Uninstalled plugin $PluginName"
+            Write-Verbose "Uninstalling plugin $pluginName..."
+            $response = $webclient.UploadString($CmsHostname + "Alchemy/api/Plugins/" + $pluginName + "/Uninstall", "")
+            Write-Host "Uninstalled plugin $pluginName"
         }
         catch [System.Net.WebException]
         {
             $exception = $_
-            Write-Error "Something went wrong while uninstalling plugin $PluginName"
+            Write-Error "Something went wrong while uninstalling plugin $pluginName"
             throw $exception
         }
     }
@@ -117,14 +134,14 @@ try
 
     try
     {
-        Write-Verbose "Installing plugin $PluginName..."
+        Write-Verbose "Installing plugin $pluginName..."
         $response = $webclient.UploadFile($CmsHostname + "Alchemy/api/Plugins/Install", $file)
-        Write-Host "Installed plugin $PluginName"
+        Write-Host "Installed plugin $pluginName"
     }
     catch [System.Net.WebException]
     {
         $exception = $_
-        Write-Error "Something went wrong while installing plugin $PluginName"
+        Write-Error "Something went wrong while installing plugin $pluginName"
         throw $exception
     }
     Write-Verbose "done!"
