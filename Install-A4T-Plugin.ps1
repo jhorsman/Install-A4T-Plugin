@@ -74,15 +74,12 @@ try
     }
 
     $plugins = ConvertFrom-Json($response)
-    $pluginIsInstalled = $false
-    if($plugins)
-    {
-        $pluginIsInstalled = $plugins.name.Contains($PluginName)
-    }
+    $installedPlugin = $plugins.Where{$_.name -eq $PluginName}
+    $pluginIsInstalled = ($installedPlugin.Count -eq 1)
 
     if($pluginIsInstalled)
     {
-        Write-Host "$PluginName is installed"
+        Write-Host "$PluginName is installed; Version:"$installedPlugin.versionNumber"; VersionId:"$installedPlugin.versionId
     } else 
     {
         Write-Host "$PluginName is not installed"
