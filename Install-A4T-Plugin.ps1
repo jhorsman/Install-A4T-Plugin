@@ -1,5 +1,7 @@
-#upload.ps1' .\HelloWorld.a4t HelloWorld
-
+# Usage examples
+#   .\Install-A4T-Plugin.ps1 "HelloWorld.a4t"
+#   .\Install-A4T-Plugin.ps1 "HelloWorld-old-copy.a4t" "HelloWorld"
+#   .\Install-A4T-Plugin.ps1 "HelloWorld.a4t" -CmsHostname "http://cms" -Username administrator -Password secret
 
 param (
     [parameter(Mandatory=$true)]
@@ -13,9 +15,7 @@ param (
     [string] $Username = "",
 
     [string] $Password = ""
-
 )
-
 
 $ErrorActionPreference = "Stop"
 
@@ -33,6 +33,9 @@ try
     {
         $PluginName = [io.fileinfo] $Filename | % basename
     }
+
+    #todo check for /plugin/name without spaces in a4t.xml
+
     Write-Host "using plugin name $PluginName"
 
     $webclient = new-object System.Net.WebClient
