@@ -95,7 +95,7 @@ try
     }
 
     $plugins = ConvertFrom-Json($response)
-    $installedPlugin = $plugins.Where{$_.name -eq $pluginName}
+    $installedPlugin = $plugins.Where{$_.name -eq $pluginName.Replace("_", " ")}
     $pluginIsInstalled = ($installedPlugin.Count -eq 1)
 
     $installedPluginIsDeveloperVersion = $null
